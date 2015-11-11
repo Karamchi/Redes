@@ -62,13 +62,13 @@ def process3(results):
         print >> sys.stderr, "[INFO] para ttl %d el host %s aparece %d veces" % (ttl, mch[0], mch[1])
         # nos quedamos solo con los ttls de los hosts que mas aparecen
         ttls[ttl] = [(host, rtt) for host, rtt in ttls[ttl] if host == mch[0]]
-        prom[ttl] = avg([rtt for host, rtt in ttls[ttl]])
+        prom[ttl] = avg([rtt for host, rtt in ttls[ttl]]), mch[0]
     ls = sorted(prom.keys())
 
     res = [prom[ls[0]]]
     for i in xrange(len(ls) - 1):
-        res.append(max(prom[ls[i+1]] - prom[ls[i]], 0.0))
-    return res 
+        res.append((max(prom[ls[i+1]][0] - prom[ls[i]][0], 0.0), prom[ls[i+1]][1]))
+    return res
 
 """
     process2 procesa los resultados como pide el tp,
