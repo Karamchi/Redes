@@ -22,8 +22,8 @@ def main():
     iterations = int(sys.argv[1])
     for z in xrange(iterations):
         print >> sys.stderr, "[INFO] Comenzando iteracion ", z
-        pk = IP(dst = ip, ttl = range(1, 65)) / ICMP()
-        ans, unans = sr(pk, timeout = 10, verbose=False)
+        pk = IP(dst = ip, ttl = range(1, 30)) / ICMP()
+        ans, unans = sr(pk, timeout = 6, verbose=False)
         # Ignoramos los unanswered.
         print >> sys.stderr, "[INFO] Perdidos: %d" % (len(unans))
         if len(ans) == 0: continue

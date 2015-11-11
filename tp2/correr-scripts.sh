@@ -7,11 +7,11 @@ mkdir -p results
 for u in $UNIVERSITIES
 do
 	echo "Traceroute para $u"
-	python traceroute-all.py 50 $u > "results/$u"
+	python traceroute-all.py 100 $u > "results/$u"
 done
 
 for u in $UNIVERSITIES
 do
 	echo "Traceroute one para $u"
-	python traceroute-one.py 50 $u > "results/$u-one"
+	#python traceroute-one.py 50 $u > "results/$u-one"
 done
