@@ -56,18 +56,42 @@ def process3(results):
                 ttls[ttl] = []
             ttls[ttl].append((host, rtt))
 
+    visited = set()
     prom = {}
     for ttl in sorted(ttls.keys()):
-        mch = Counter([host for host, rtt in ttls[ttl]]).most_common(1)[0]
-        print >> sys.stderr, "[INFO] para ttl %d el host %s aparece %d veces" % (ttl, mch[0], mch[1])
+        hosts = Counter([host for host, rtt in ttls[ttl]]).most_common(5)
+        mch = None
+        times = 0
+        for h, t in hosts:
+            if h not in visited:
+                visited.add(h)
+                mch, times = h, t
+                break
+
+        print >> sys.stderr, "[INFO] para ttl %d el host %s aparece %d veces" % (ttl, mch, times)
+        # si aparece menos de 10 veces lo descartamos, la medicion no es significativa.
+        if times < 20 or mch == None:
+            continue
         # nos quedamos solo con los ttls de los hosts que mas aparecen
-        ttls[ttl] = [(host, rtt) for host, rtt in ttls[ttl] if host == mch[0]]
-        prom[ttl] = avg([rtt for host, rtt in ttls[ttl]]), mch[0]
+        ttls[ttl] = [(host, rtt) for host, rtt in ttls[ttl] if host == mch]
+        prom[ttl] = avg([rtt for host, rtt in ttls[ttl]]), mch
+
     ls = sorted(prom.keys())
 
     res = [prom[ls[0]]]
     for i in xrange(len(ls) - 1):
         res.append((max(prom[ls[i+1]][0] - prom[ls[i]][0], 0.0), prom[ls[i+1]][1]))
+
+    # tomamos el minimo que no sea igual a 0.
+    m = 10
+    for rtt, host in res:
+        if rtt > 0.000001 and rtt < m:
+            m = rtt
+    for i in xrange(len(res)):
+        rtt, host = res[i]
+        if rtt < m:
+            res[i] = m, host
+
     return res
 
 """
@@ -127,8 +151,29 @@ def printcol(mtx, index):
     for row in col(mtx, index):
         print row
 
+
+def getresults():
+    univs = ["berkeley.edu", "lnu.edu.ua", "new.aucegypt.edu", "uwaterloo.ca", "www.cuni.cz", "www.msu.ru", "www.tsinghua.edu.cn", "www.unsw.com", "www.uom.gr", "www.u-tokyo.ac.jp"]
+    info = {}
+    for u in univs:
+        info[u] = process3(parsefile("results/" + u))
+
+    return info
+
 def main():
-   return
+    info = getresults()
+    hostinfo = {}
+    for route in info:
+        for rtt, host in info[route]:
+            if host not in hostinfo:
+                hostinfo[host] = []
+            hostinfo[host].append(rtt)
+
+    havg = {}
+    for h in hostinfo:
+        havg[h] = avg(hostinfo[h])
+
+    return havg
 
 if __name__ == "__main__":
     main()
