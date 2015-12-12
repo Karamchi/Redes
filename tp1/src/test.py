@@ -47,17 +47,18 @@ def main():
       # Graficamos los nodos y la entropia.
 
       
-      for i in [30, 40]:
+      for i in [40]:
         sprobs = list(reversed(sorted(inf[cap][d].items(), key = operator.itemgetter(1))[:i]))
         labels, data = zip(*sprobs)
-        fig = plt.figure()
+        fig = plt.figure(figsize=(18, 13))
         ind = np.arange(len(data))
-        plt.bar(ind, data)
-        plt.xticks(ind + .35, labels, rotation='vertical')
-        #TODO: Agregarle la barra de la entropia!
-        # La entropia de este caso esta en entr[cap][d]
-        #TODO: Hacer que se vaya "mas para abajo"
-        #HAY QUE HACER UN MKDIR de esta carpeta!
+        plt.bar(ind, data, width = .9)
+        plt.plot([0,len(data)],[entr[cap][d],entr[cap][d]], color="red",linewidth=5,label="Entropia de la fuente")
+        plt.xticks(ind - 1, labels, rotation=45)
+        plt.title("Entropia", fontsize="20")
+        plt.xlabel("IP del nodo", fontsize="20")
+        plt.ylabel("Informacion del Nodo (en bits)", fontsize="20")
+        plt.legend()
         plt.savefig("entr/%s-%s-entr-%d.png" % (cap, d, i))
       
       
